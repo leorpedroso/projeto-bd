@@ -68,7 +68,7 @@ def go_to_champ_page(url):
 
     # wait load
     wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_element_located((By.ID, f'Health_{champ_name}')))
+    wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@data-source, 'health')]")))
 
     return champ_name
 
@@ -90,9 +90,13 @@ def go_to_lore_page(url):
 def get_by_id(champ_name, dict):
     for name, id in Att.search_by_id.items():
         try:
-            value = driver.find_element(By.ID, f'{id}_{champ_name}')
-            dict[name] = value.text
-        except NoSuchElementException:
+            row = driver.find_element(By.XPATH, f"//*[contains(@data-source, '{id[1]}')]")
+            span = row.find_element(By.XPATH, f"//*[contains(@id, '{id[0]}_')]")
+            print(span.text)
+            dict[name] = span.text
+
+        except NoSuchElementException as e:
+            # print(e)
             dict[name] = None
 
     return dict
@@ -225,6 +229,7 @@ def search_champ(url):
         print(e)
 
 def search_champs(urls):
+    search_champ('https://leagueoflegends.fandom.com/wiki/Kog%27Maw/LoL')
     for url in urls:
         search_champ(url)
         

@@ -1,5 +1,5 @@
 search_by_id = {
-    'health': 'Health',
+    'health': ('Health', 'health'),
     'resource': 'ResourceBar',
     'health_regen': 'HealthRegen',
     'resource_regen': 'ResourceRegen',
