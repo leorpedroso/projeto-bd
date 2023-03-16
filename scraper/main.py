@@ -72,6 +72,21 @@ def go_to_champ_page(url):
 
     return champ_name
 
+def go_to_lore_page(url):
+    trying = 0
+    while trying < 5:
+        try:
+            driver.get(url[0:len(url)-4])
+            trying = 5
+        except:
+            sleep(5)
+            trying += 1
+
+    # wait load
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@role, 'region')]")))
+
+
 def get_by_id(champ_name, dict):
     for name, id in Att.search_by_id.items():
         try:
@@ -86,7 +101,7 @@ def get_by_data_source(dict):
     for name, txt in Att.search_by_data_source.items():
         try:
             row = driver.find_element(By.XPATH, f"//*[contains(@data-source, '{txt}')]")
-            div = row.find_element(By.XPATH, f".//div")
+            div = row.find_element(By.XPATH, ".//div")
             dict[name] = div.text.split()
 
         except NoSuchElementException as e:
@@ -125,21 +140,68 @@ def get_store_price(dict):
 
     return dict
 
-def get_champ_attributes(champ_name):
-    atts = {}
+def get_champ_attributes(champ_name, atts):
     atts = get_by_id(champ_name, atts)
     atts = get_by_data_source(atts)
     atts = get_crit_damage(atts)
     atts = get_store_price(atts)
     # atts = ...
     
+    return atts
+
+def get_lore_by_data_source(dict):
+    for name, txt in Lore.search_by_data_source.items():
+        try:
+            row = driver.find_element(By.XPATH, f"//*[contains(@data-source, '{txt}')]")
+
+            # can either be a list (ul html element) or a single element (div)
+            ul = row.find_elements(By.XPATH, ".//ul/li")
+
+            if len(ul) == 0:
+                div = row.find_element(By.XPATH, ".//div")
+                dict[name] = div.text
+                continue
+
+            lis = []
+            for li in ul:
+                lis.append(li.text)
+
+            dict[name] = lis
+            
+
+        except NoSuchElementException as e:
+            dict[name] = None
+            print(e)
+
+    return dict
+
+def get_lore_attributes(atts):
+    atts = get_lore_by_data_source(atts)
+    
+
+    return atts
+
+def get_attributes(champ_name, url):
+    atts = {}
+    atts = get_champ_attributes(champ_name, atts)
+    
+    try:
+        go_to_lore_page(url)
+        atts = get_lore_attributes(atts)
+
+    except TimeoutException as e:
+        print(e)
+        
+
     print(atts)
+    return atts
+
 
 def search_champ(url):
     # navigate directly to champ page
     try:
         champ_name = go_to_champ_page(url)
-        get_champ_attributes(champ_name)
+        get_attributes(champ_name, url)
 
     except TimeoutException as e:
         print(e)
