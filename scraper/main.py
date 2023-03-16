@@ -107,11 +107,30 @@ def get_crit_damage(dict):
 
     return dict
 
+def get_store_price(dict):
+    try:
+        row = driver.find_element(By.XPATH, f"//*[contains(@data-source, 'cost')]")
+        div = row.find_element(By.XPATH, ".//div")
+        anchors = div.find_elements(By.XPATH, ".//a")
+        costs = [anchors[1].text, anchors[3].text]
+
+        for i, key in enumerate(Att.search_store_price):
+                dict[key] = costs[i]
+
+    except NoSuchElementException as e:
+        for i, key in enumerate(Att.search_store_price):
+            dict[key] = None
+        
+        print(e)
+
+    return dict
+
 def get_champ_attributes(champ_name):
     atts = {}
     atts = get_by_id(champ_name, atts)
     atts = get_by_data_source(atts)
     atts = get_crit_damage(atts)
+    atts = get_store_price(atts)
     # atts = ...
     
     print(atts)

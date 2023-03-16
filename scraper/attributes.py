@@ -10,10 +10,10 @@ search_by_id = {
     'range': 'AttackRange'
 }
 
-search_store_price = {
-    'store_price_be': 'Store price',
-    'store_price_rp': 'Store price',
-}
+search_store_price = [
+    'store_price_be',
+    'store_price_rp'
+]
 
 search_crit_damage = {
     'crit_damage': 'critical damage',
