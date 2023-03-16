@@ -175,8 +175,26 @@ def get_lore_by_data_source(dict):
 
     return dict
 
+def filter_quote(og):
+    index = og[1:].find('"')
+    return og[1:index+1]
+
+def get_quote(dict):
+    for name, txt in Lore.search_by_class.items():
+        try:
+            table = driver.find_element(By.CLASS_NAME, f"{txt}")
+            tds = table.find_elements(By.XPATH, ".//td")
+            dict[name] = filter_quote(tds[1].text)
+
+        except NoSuchElementException as e:
+            dict[name] = None
+            print(e)
+
+    return dict
+
 def get_lore_attributes(atts):
     atts = get_lore_by_data_source(atts)
+    atts = get_quote(atts)
     
 
     return atts
