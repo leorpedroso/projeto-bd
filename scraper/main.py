@@ -87,12 +87,11 @@ def go_to_lore_page(url):
     wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@role, 'region')]")))
 
 
-def get_by_id(champ_name, dict):
+def get_by_id(dict):
     for name, id in Att.search_by_id.items():
         try:
             row = driver.find_element(By.XPATH, f"//*[contains(@data-source, '{id[1]}')]")
             span = row.find_element(By.XPATH, f"//*[contains(@id, '{id[0]}_')]")
-            print(span.text)
             dict[name] = span.text
 
         except NoSuchElementException as e:

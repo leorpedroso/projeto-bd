@@ -1,13 +1,13 @@
 search_by_id = {
     'health': ('Health', 'health'),
-    'resource': 'ResourceBar',
-    'health_regen': 'HealthRegen',
-    'resource_regen': 'ResourceRegen',
-    'armor': 'Armor',
-    'magic_resist': 'MagicResist',
-    'attack_damage': 'AttackDamage',
-    'mov_speed': 'MovementSpeed',
-    'range': 'AttackRange'
+    'resource': ('ResourceBar', 'resource'),
+    'health_regen': ('HealthRegen', 'health regen'),
+    'resource_regen': ('ResourceRegen', 'resource regen'),
+    'armor': ('Armor', 'armor'),
+    'magic_resist': ('MagicResist', 'mr'),
+    'attack_damage': ('AttackDamage', 'attack damage'),
+    'mov_speed': ('MovementSpeed', 'ms'),
+    'range': ('AttackRange', 'range')
 }
 
 search_store_price = [
