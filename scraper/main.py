@@ -239,6 +239,11 @@ options.add_argument("--disable-cookies")
 driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
 driver.get('https://leagueoflegends.fandom.com/wiki/List_of_champions')
 
+wait = WebDriverWait(driver, 10)
+wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@data-tracking-opt-in-accept, 'true')]")))
+
+cookie = driver.find_element(By.XPATH, "//*[contains(@data-tracking-opt-in-accept, 'true')]").click()
+
 driver.set_page_load_timeout(20)
 
 # Locate the table element
