@@ -144,7 +144,7 @@ def get_store_price(dict):
     return dict
 
 def get_champ_attributes(champ_name, atts):
-    atts = get_by_id(champ_name, atts)
+    atts = get_by_id(atts)
     atts = get_by_data_source(atts)
     atts = get_crit_damage(atts)
     atts = get_store_price(atts)
@@ -195,17 +195,35 @@ def get_quote(dict):
 
     return dict
 
+def get_abilities(atts):
+    atts['abilities'] = []
+
+    containers = driver.find_elements(By.CLASS_NAME, 'ability-info-container')
+    for container in containers:
+        title = container.find_element(By.CSS_SELECTOR, 'h3').text
+        descriptions = container.find_elements(By.CSS_SELECTOR, 'p')
+
+        description = ''
+        for desc in descriptions:
+            description += desc.text + '\n'
+
+        ability = {title, description}
+        atts['abilities'].append(ability)
+
+    return atts
+
+
 def get_lore_attributes(atts):
     atts = get_lore_by_data_source(atts)
     atts = get_quote(atts)
     
-
     return atts
 
 def get_attributes(champ_name, url):
     atts = {}
     atts = get_champ_attributes(champ_name, atts)
-    
+    atts = get_abilities(atts)
+
     try:
         go_to_lore_page(url)
         atts = get_lore_attributes(atts)
