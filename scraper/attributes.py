@@ -26,7 +26,3 @@ search_by_data_source = {
     'range_type': 'rangetype',
     'adaptive_type': 'adaptivetype',
 }
-
-search_abilities = {
-    
-}

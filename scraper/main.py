@@ -6,10 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 
-
 import attributes as Att
 import lore_attributes as Lore
 
+import sys, os
+sys.path.append(os.path.join(sys.path[0], '../persistence/'))
+import sender
 
 def get_urls():
     urls = []
@@ -196,7 +198,7 @@ def get_quote(dict):
     return dict
 
 def get_abilities(atts):
-    atts['abilities'] = []
+    abilities = []
 
     containers = driver.find_elements(By.CLASS_NAME, 'ability-info-container')
     for container in containers:
@@ -207,9 +209,14 @@ def get_abilities(atts):
         for desc in descriptions:
             description += desc.text + '\n'
 
-        ability = {title, description}
-        atts['abilities'].append(ability)
+        ability = {
+            "name": title,
+            "description": description
+        }
+        abilities.append(ability)
 
+    atts['abilities'] = abilities
+    
     return atts
 
 
@@ -240,46 +247,50 @@ def search_champ(url):
     # navigate directly to champ page
     try:
         champ_name = go_to_champ_page(url)
-        get_attributes(champ_name, url)
+        atts = get_attributes(champ_name, url)
+        es.post_champ_to_elastic(champ_name, atts)
 
     except TimeoutException as e:
         print(e)
 
 def search_champs(urls):
-    search_champ('https://leagueoflegends.fandom.com/wiki/Kog%27Maw/LoL')
     for url in urls:
         search_champ(url)
         
 
+if __name__ == '__main__':
 
-DRIVER_PATH = '/chromedriver'
-options = webdriver.ChromeOptions()
-options.add_argument("--disable-cookies")
-# options.add_argument('--headless')
+    es = sender.Elastic()
+    es.connect()
 
-# Go to landing page
-driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
-driver.get('https://leagueoflegends.fandom.com/wiki/List_of_champions')
+    DRIVER_PATH = '/chromedriver'
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-cookies")
+    # options.add_argument('--headless')
 
-wait = WebDriverWait(driver, 10)
-wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@data-tracking-opt-in-accept, 'true')]")))
+    # Go to landing page
+    driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
+    driver.get('https://leagueoflegends.fandom.com/wiki/List_of_champions')
 
-cookie = driver.find_element(By.XPATH, "//*[contains(@data-tracking-opt-in-accept, 'true')]").click()
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@data-tracking-opt-in-accept, 'true')]")))
 
-driver.set_page_load_timeout(20)
+    cookie = driver.find_element(By.XPATH, "//*[contains(@data-tracking-opt-in-accept, 'true')]").click()
 
-# Locate the table element
-table = driver.find_element(By.CLASS_NAME, "article-table")
+    driver.set_page_load_timeout(20)
 
-wait = WebDriverWait(driver, 10)
-wait.until(EC.presence_of_all_elements_located((By.XPATH, ".//tbody//tr")))
+    # Locate the table element
+    table = driver.find_element(By.CLASS_NAME, "article-table")
 
-# Find length of table (number of champs)
-rows = table.find_elements(By.XPATH, ".//tbody//tr")
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_all_elements_located((By.XPATH, ".//tbody//tr")))
 
-urls = get_urls()
+    # Find length of table (number of champs)
+    rows = table.find_elements(By.XPATH, ".//tbody//tr")
 
-search_champs(urls)
+    urls = get_urls()
 
-# Close the driver
-driver.quit()
+    search_champs(urls)
+
+    # Close the driver
+    driver.quit()
