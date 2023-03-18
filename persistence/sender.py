@@ -18,10 +18,37 @@ class Elastic:
             verify_certs=False
         )
 
+    def check_index_exists(self, index):
+        return self.client.indices.exists(index=index)
+    
+
+    def check_champ_version_exists(self, index, doc):
+        res = self.client.search(
+            index=index,
+            query= {
+                "term": {
+                    "last_changed": {
+                        "value": doc["last_changed"]
+                    }
+                }
+            }
+        )
+
+        return res['hits']['total']['value'] > 0
+
+    def verify_post_to_elastic(self, champ, dict):
+        return (not self.check_index_exists(champ)) or (not self.check_champ_version_exists(champ, dict))
+            
 
     def post_champ_to_elastic(self, champ, dict):
+        print(f'Verifying post {champ} to elastic')
+        if not self.verify_post_to_elastic(champ, dict):
+            return
+        
+        print(f'Posting {champ} to elastic...')
         self.client.index(
             index=champ.lower(),
             document=dict
         )
+        print('Done!')
             
