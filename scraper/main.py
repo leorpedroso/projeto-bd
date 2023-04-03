@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import Select
 
 import attributes as Att
 import lore_attributes as Lore
@@ -70,7 +71,7 @@ def go_to_champ_page(url):
 
     # wait load
     wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@data-source, 'health')]")))
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "lvlselect-champ")))
 
     return champ_name
 
@@ -145,7 +146,18 @@ def get_store_price(dict):
 
     return dict
 
+def change_champ_level():
+    # procurar XPATH igual a data-champ, nao contains
+    # ou pode ser contains pq eh o primeiro
+    dropdown = driver.find_element(By.CLASS_NAME, 'lvlselect-champ')
+    selector = dropdown.find_element(By.CSS_SELECTOR, "div.lvlselect-champ select")
+
+    select = Select(selector)
+    select.select_by_value('-1')
+
+
 def get_champ_attributes(champ_name, atts):
+    change_champ_level()
     atts = get_by_id(atts)
     atts = get_by_data_source(atts)
     atts = get_crit_damage(atts)
