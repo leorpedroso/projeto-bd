@@ -213,7 +213,17 @@ def get_quote(dict):
 
     return dict
 
-def get_abilities(atts):
+
+def get_real_name():
+    title = driver.find_element(By.ID, 'firstHeading').text
+    return title[:title.find('(')-1]
+
+
+def filter_ability(name, text):
+    return text.replace(name, 'The Champion')
+
+
+def get_abilities(real_name, atts):
     abilities = []
 
     containers = driver.find_elements(By.CLASS_NAME, 'ability-info-container')
@@ -225,9 +235,11 @@ def get_abilities(atts):
         for desc in descriptions:
             description += desc.text + '\n'
 
+        description = filter_ability(real_name, description).replace(':', ' -')
+
         ability = {
             "name": title,
-            "description": description.replace('"', '')
+            "description": description
         }
         abilities.append(ability)
 
@@ -244,8 +256,12 @@ def get_lore_attributes(atts):
 
 def get_attributes(champ_name, url):
     atts = {}
+
+    real_name = get_real_name()
+    atts['name'] = real_name
+
     atts = get_champ_attributes(champ_name, atts)
-    atts = get_abilities(atts)
+    atts = get_abilities(real_name, atts)
 
     try:
         go_to_lore_page(url)
