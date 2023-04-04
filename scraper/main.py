@@ -15,14 +15,17 @@ sys.path.append(os.path.join(sys.path[0], '../persistence/'))
 import sender
 
 def get_urls():
-    urls = []
+    infos = []
 
     for row in rows:
         url = row.find_element(By.XPATH, ".//a").get_attribute('href')
-        print(url)
-        urls.append(url)
 
-    return urls
+        last_changed = row.find_elements(By.XPATH, ".//td")[3].text
+
+        print(url, last_changed)
+        infos.append((url, last_changed))
+
+    return infos
 
 def normalize_champ_name(name):
     name = name.replace('_', '')
@@ -254,11 +257,12 @@ def get_lore_attributes(atts):
     
     return atts
 
-def get_attributes(champ_name, url):
+def get_attributes(champ_name, url, last_changed):
     atts = {}
 
     real_name = get_real_name()
     atts['name'] = real_name
+    atts['last_changed'] = last_changed
 
     atts = get_champ_attributes(champ_name, atts)
     atts = get_abilities(real_name, atts)
@@ -275,19 +279,24 @@ def get_attributes(champ_name, url):
     return atts
 
 
-def search_champ(url):
+def search_champ(champion_info):
     # navigate directly to champ page
     try:
+        url, last_changed = champion_info
         champ_name = go_to_champ_page(url)
-        atts = get_attributes(champ_name, url)
-        es.post_champ_to_elastic(champ_name, atts)
+        print(es.get_most_recent_version(champ_name.lower()))
+        if last_changed == es.get_most_recent_version(champ_name.lower()):
+            print('Skipping...')
+        else:
+            atts = get_attributes(champ_name, url, last_changed)
+            es.post_champ_to_elastic(champ_name, atts)
 
     except TimeoutException as e:
         print(e)
 
-def search_champs(urls):
-    for url in urls:
-        search_champ(url)
+def search_champs(champ_info):
+    for ci in champ_info:
+        search_champ(ci)
         
 
 if __name__ == '__main__':
@@ -298,7 +307,7 @@ if __name__ == '__main__':
     DRIVER_PATH = '/chromedriver'
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-cookies")
-    # options.add_argument('--headless')
+    options.add_argument('--headless')
 
     # Go to landing page
     driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
@@ -320,9 +329,9 @@ if __name__ == '__main__':
     # Find length of table (number of champs)
     rows = table.find_elements(By.XPATH, ".//tbody//tr")
 
-    urls = get_urls()
+    champ_info = get_urls()
 
-    search_champs(urls)
+    search_champs(champ_info)
 
     # Close the driver
     driver.quit()

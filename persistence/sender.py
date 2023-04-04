@@ -36,19 +36,43 @@ class Elastic:
 
         return res['hits']['total']['value'] > 0
 
+
     def verify_post_to_elastic(self, champ, dict):
         return (not self.check_index_exists(champ)) or (not self.check_champ_version_exists(champ, dict))
             
 
     def post_champ_to_elastic(self, champ, dict):
-        print(f'Verifying post {champ} to elastic')
-        if not self.verify_post_to_elastic(champ, dict):
+        try:
+            print(f'Verifying post {champ} to elastic')
+            if not self.verify_post_to_elastic(champ, dict):
+                return
+            
+            print(f'Posting {champ} to elastic...')
+            self.client.index(
+                index=champ.lower(),
+                document=dict
+            )
+            print('Done!')
+        
+        except Exception as e:
+            print(f'Failed to post {champ} data')
+            print(e)
+
+    
+    def get_most_recent_version(self, champ):
+        if not self.check_index_exists(champ.lower()):
             return
         
-        print(f'Posting {champ} to elastic...')
-        self.client.index(
-            index=champ.lower(),
-            document=dict
+        res = self.client.search(
+            index=champ,
+            body={
+                'size': 10000,
+                'query': {
+                    'match_all': {}
+                }
+            }
         )
-        print('Done!')
-            
+
+        if 'last_changed' in res['hits']['hits'][0]['_source']:
+            return res['hits']['hits'][0]['_source']['last_changed']
+        
