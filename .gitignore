@@ -1,0 +1,4 @@
+es-data/
+*.crt
+*.env
+*.pyc
