@@ -147,13 +147,17 @@ def get_store_price(dict):
     return dict
 
 def change_champ_level():
-    # procurar XPATH igual a data-champ, nao contains
-    # ou pode ser contains pq eh o primeiro
-    dropdown = driver.find_element(By.CLASS_NAME, 'lvlselect-champ')
-    selector = dropdown.find_element(By.CSS_SELECTOR, "div.lvlselect-champ select")
+    try:
+        dropdown = driver.find_element(By.CLASS_NAME, 'lvlselect-champ')
+        selector = dropdown.find_element(By.CSS_SELECTOR, "div.lvlselect-champ select")
 
-    select = Select(selector)
-    select.select_by_value('-1')
+        select = Select(selector)
+        select.select_by_value('-1')
+
+        return True
+    except NoSuchElementException as e:
+        print(e)
+        return False
 
 
 def get_champ_attributes(champ_name, atts):
@@ -223,7 +227,7 @@ def get_abilities(atts):
 
         ability = {
             "name": title,
-            "description": description
+            "description": description.replace('"', '')
         }
         abilities.append(ability)
 
