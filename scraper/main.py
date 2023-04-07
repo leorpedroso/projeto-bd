@@ -9,10 +9,12 @@ from selenium.webdriver.support.ui import Select
 
 import attributes as Att
 import lore_attributes as Lore
-
 import sys, os
 sys.path.append(os.path.join(sys.path[0], '../persistence/'))
+
 import sender
+import urllib3
+urllib3.disable_warnings()
 
 def get_urls():
     infos = []
@@ -291,13 +293,18 @@ def search_champ(champion_info):
             atts = get_attributes(champ_name, url, last_changed)
             es.post_champ_to_elastic(champ_name, atts)
 
+        return champ_name
+
     except TimeoutException as e:
         print(e)
 
 def search_champs(champ_info):
+    champ_indexes = []
     for ci in champ_info:
-        search_champ(ci)
+        champ_index = search_champ(ci)
+        champ_indexes.append(champ_index)
         
+    return champ_indexes
 
 if __name__ == '__main__':
 
@@ -331,7 +338,13 @@ if __name__ == '__main__':
 
     champ_info = get_urls()
 
-    search_champs(champ_info)
+    # Call es.get_champ_info
+    champ_indexes = search_champs(champ_info)
+
+    es.post_champ_indexes(champ_indexes)
+    # es.refresh_index(champ_indexes)
+    names = es.get_champ_indexes()
+    print(names)
 
     # Close the driver
     driver.quit()
