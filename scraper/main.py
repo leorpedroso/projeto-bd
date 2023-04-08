@@ -47,7 +47,7 @@ def normalize_champ_name(name):
         name = ''.join(names)
 
     # for some reason Kled is written as Kled1
-    if name == 'Kled':
+    if name == 'Kled' or name == 'kled':
         name = 'Kled1'
 
     return name
