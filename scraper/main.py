@@ -346,5 +346,7 @@ if __name__ == '__main__':
     names = es.get_champ_indexes()
     print(names)
 
+    es.post_info_index()
+
     # Close the driver
     driver.quit()
