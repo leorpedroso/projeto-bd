@@ -14,7 +14,7 @@ list_tips = [] #keep track of every tip given so far
 
 def generate_tip(infos):
     while True:
-        attribute, value = random.choice(list(infos.items())) #choses a random tip, a pair attribute : value to show the user
+        attribute, value = random.choice(list(infos.items())) #chooses a random tip, a pair attribute : value to show the user
         if attribute == 'name':
             pass
         elif attribute == 'last_changed':
@@ -24,7 +24,7 @@ def generate_tip(infos):
     # value = infos['abilities']
 
     if type(value) == list:                 #sometimes a value will be a list
-        y = random.randint(0, len(value)-1)   #in which case, we chose a random position of the list to show as a tip
+        y = random.randint(0, len(value)-1) #in which case, we choose a random position of the list to show as a tip
         chosen_value = value[y]
     else:
         chosen_value = value
@@ -79,7 +79,6 @@ def menu(champion, infos):
                         break
                 window['-DICA-'].update(f'{chosen_tip}\n{guesses["-DICA-"]}', font=("Spiegel", 15))
 
-    # Close the window
     window.close()
 
 if __name__ == '__main__':
@@ -106,5 +105,3 @@ if __name__ == '__main__':
     # print("CHOSEN TIP:", chosen_tip)
     
     menu(champion, infos)
-
-# colocar uma opcao da versao do jogo
