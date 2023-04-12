@@ -342,9 +342,8 @@ if __name__ == '__main__':
     champ_indexes = search_champs(champ_info)
 
     es.post_champ_indexes(champ_indexes)
-    # es.refresh_index(champ_indexes)
+
     names = es.get_champ_indexes()
-    print(names)
 
     es.post_info_index()
 

@@ -12,6 +12,62 @@ urllib3.disable_warnings()
 
 list_tips = [] #keep track of every tip given so far
 
+normalize = {
+    'health':"vida", 
+    'health_regen':"regeneração de vida", 
+    'resource':"recurso", 
+    'resource_regen': "resource_regen", 
+    'armor': "armadura",
+    'magic_resist': "resistencia magica",
+    'attack_damage': "dano de ataque",
+    'mov_speed': "velocidade de movimento", 
+    'range': "alcance",
+    'store_price_be': "custo em essencias azuis",
+    'store_price_rp': "custo em essencias laranjas",
+    'class':"classes",
+    'position': "posições",
+    'range_type': "tipos de alcance",
+    'adaptive_type': "tipos de dano",
+    'region': "regiões"
+}
+
+def generate_trivia():
+    numeric_att = ['health', 'health_regen', 'resource', 'resource_regen', 'armor', 'magic_resist',
+                    'attack_damage', 'mov_speed', 'range', 'store_price_be', 'store_price_rp']
+
+    non_numeric = ['crit_damage', 'release_date']
+
+    atts = es.get_attributes()
+   
+    attribute, value = random.choice(list(atts.items())) #chooses a random attribute
+    
+    if attribute in numeric_att:
+        # chooses between lowest or highest
+        choice = random.randint(0, 1)
+
+        name = es.get_champ_from_att(attribute, value[choice]) #get the corresponding champion with that attribute:value
+
+        attribute_normalized = normalize[attribute]
+
+        if choice:
+            l = 'maior'
+        else:
+            l = 'menor'
+
+        # print(f'O campeão com {l} {attribute_normalized} é {name}: {value[choice]}')
+        trivia = f'O campeão com {l} {attribute_normalized} é {name}: {value[choice]}'
+
+    elif attribute not in non_numeric:
+        attribute_normalized = normalize[attribute]
+        # print(f'Existem {len(value)} {attribute_normalized} no jogo: {", ".join(value)}')
+        trivia = f'Existem {len(value)} {attribute_normalized} no jogo: {", ".join(value)}'
+
+    else:
+        # print(f'League of Legends foi lançado oficialmente em 27 de outubro de 2009' )
+        trivia = f'League of Legends foi lançado oficialmente em 27 de outubro de 2009'
+
+    return trivia
+
 def generate_tip(infos):
     while True:
         attribute, value = random.choice(list(infos.items())) #chooses a random tip, a pair attribute : value to show the user
@@ -48,7 +104,7 @@ def menu(champion, infos):
     # Define the layout of the window
     layout = [[sg.Text('Adivinhe o campeão:', font=("Spiegel", 20))],
             [sg.Input(do_not_clear=False, key='input',font=("Spiegel", 15))],
-            [sg.Button('Vai!', font=("Spiegel", 15))],
+            [sg.Button('Vai!', font=("Spiegel", 15)), sg.Button("Trivia!", font=("Spiegel", 15))],
             [sg.Multiline('', size=(70, 20), key='-DICA-', font=("Spiegel", 15))]]
 
     # Create the window
@@ -61,6 +117,9 @@ def menu(champion, infos):
         event, guesses = window.read()
         if event == sg.WINDOW_CLOSED:
             break
+        elif event == 'Trivia!':
+            trivia = generate_trivia()
+            sg.popup(f"{trivia}", title="Trivia", font=("Spiegel",20))
         elif event == 'Vai!' or event == "input" + "_Enter":
             tentativa = main.normalize_champ_name(guesses['input']).lower() #normalizes user input
             if tentativa == champion.lower(): 
@@ -103,5 +162,5 @@ if __name__ == '__main__':
     # print(attribute, ":", value)
     # print("Type:", type(value))
     # print("CHOSEN TIP:", chosen_tip)
-    
+
     menu(champion, infos)

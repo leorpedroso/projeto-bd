@@ -27,7 +27,7 @@ class Elastic:
             index=index,
             query= {
                 "term": {
-                    "last_changed": {
+                    "last_changed.keyword": {
                         "value": doc["last_changed"]
                     }
                 }
@@ -172,3 +172,27 @@ class Elastic:
         )
 
         print('Done!')
+
+
+    def get_attributes(self):
+        res = self.client.search(
+            index='attributes',
+            body={
+                'query': {
+                    'match_all': {}
+                }
+            }
+        )
+
+        return res['hits']['hits'][0]['_source']
+
+    
+    def get_champ_from_att(self, attribute, value):
+        champs = self.get_champ_indexes()
+        for champ in champs:
+            info = self.get_champ_info(champ.lower())
+            # print(info['name'], info[attribute])
+            # print(value)
+            if info[attribute] and (float(info[attribute]) == value):
+                return info['name']
+ 
