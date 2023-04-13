@@ -1,11 +1,9 @@
 
 
 pra rodar:
-docker start elasticsearch 
-docker start kibana
+docker start elasticsearch (roda em localhost:9200)
+docker start kibana (roda em localhost:5601)
 
-localhost:9200
-localhost:5601
 
 usuario e senha no .env
 
@@ -23,4 +21,3 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/run-elasticsearc
 `docker pull docker.elastic.co/kibana/kibana:8.6.2`
 
 `docker run --name kibana --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:8.6.2`
-
